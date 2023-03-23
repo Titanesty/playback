@@ -26,6 +26,10 @@ const parentContainer = computed(()=> {
   return props.containers.find(item=> item.parentId === null) //родитель главный
 })
 
+const parentContainerId = computed(()=> {
+  return parentContainer.value!.id
+})
+
 const childAllContainer = computed(()=> {
   return props.containers.filter((item)=> item.id !== parentContainer.value!.id) // все кто его дети и потомки
 })
@@ -38,12 +42,18 @@ const deepContainer = computed(()=> {
   return childAllContainer.value.filter((item)=> item.parentId !== parentContainer.value!.id) // глубокие потомки
 })
 
-
+const style = computed(()=> {
+  return {
+    'backgroundColor': parentContainer.value!.color,
+    width: parentContainer.value!.width + "px",
+    height: parentContainer.value!.height + "px"
+  }
+})
 </script>
 
 <template>
   <div class="container container--main" :style="style">
-    <VContainer :containers="containers" />
+    <VContainer :containers="childAllContainer" :parentId="parentContainerId" />
   </div>
 
 </template>

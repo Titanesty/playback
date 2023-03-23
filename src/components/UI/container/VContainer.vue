@@ -1,41 +1,30 @@
 <script lang="ts" setup>
 import type {Container} from "@/components/UI/containers/types";
-import {computed} from "vue";
+import {computed, ref} from "vue";
 
 interface ContainerProps {
   containers: Container[];
+  parentId: number
 }
 
 const props = defineProps<ContainerProps>()
 
 const parentContainer = computed(()=> {
-  return props.containers.filter((item)=> item.parentId)
+  return props.containers.filter((item)=> item.parentId === props.parentId) // непросредственно дети
 })
 
-const childContainer = computed(()=> {
-  return props.containers.filter((item)=> item.parentId === parentContainer.value!.id) // непросредственно дети
-})
+const getParentContainerId = (containerId: number): number => {
+  return containerId
+}
 
-const deepContainer = computed(()=> {
-  return props.containers.filter((item)=> item.parentId !== parentContainer.value!.id) // глубокие потомки
-})
-
-const style = computed(()=> {
-  return {
-    'backgroundColor': parentContainer.value!.color,
-    width: parentContainer.value!.width + "px",
-    height: parentContainer.value!.height + "px"
-  }
-})
-
-
-
+const getNextContainers = (containerId: number): Container[]  => {
+  return props.containers.filter((item) => item.parentId === containerId)
+}
 </script>
 
 <template>
-<div class="container" v-for="container of containers" :style="{'backgroundColor': container.color}">
-  {{container.id}}
-  <VContainer class="sdf" :containers="containers.filter(current=>(current.parentId===container.id))" />
+<div class="container" v-for="container of parentContainer" :style="{'backgroundColor': container.color, width: `${container.width}px`, height: `${container.height}px`}">
+  <VContainer :containers="getNextContainers(container.id)" :parentId="getParentContainerId(container.id)" />
 </div>
 </template>
 
