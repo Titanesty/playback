@@ -38,20 +38,12 @@ const deepContainer = computed(()=> {
   return childAllContainer.value.filter((item)=> item.parentId !== parentContainer.value!.id) // глубокие потомки
 })
 
-const style = computed(()=> {
-  return {
-    'backgroundColor': parentContainer.value!.color,
-    width: parentContainer.value!.width + "px",
-    height: parentContainer.value!.height + "px"
-  }
-})
+
 </script>
 
 <template>
   <div class="container container--main" :style="style">
-    {{parentContainer}} <br>
-    {{childAllContainer}}
-    <VContainer :containers="childAllContainer" />
+    <VContainer :containers="containers" />
   </div>
 
 </template>

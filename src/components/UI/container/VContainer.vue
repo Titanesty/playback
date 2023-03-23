@@ -9,7 +9,7 @@ interface ContainerProps {
 const props = defineProps<ContainerProps>()
 
 const parentContainer = computed(()=> {
-  return props.containers
+  return props.containers.filter((item)=> item.parentId)
 })
 
 const childContainer = computed(()=> {
@@ -19,12 +19,23 @@ const childContainer = computed(()=> {
 const deepContainer = computed(()=> {
   return props.containers.filter((item)=> item.parentId !== parentContainer.value!.id) // глубокие потомки
 })
+
+const style = computed(()=> {
+  return {
+    'backgroundColor': parentContainer.value!.color,
+    width: parentContainer.value!.width + "px",
+    height: parentContainer.value!.height + "px"
+  }
+})
+
+
+
 </script>
 
 <template>
 <div class="container" v-for="container of containers" :style="{'backgroundColor': container.color}">
-   {{ container.id }}
-  <VContainer :containers="childContainer" />
+  {{container.id}}
+  <VContainer class="sdf" :containers="containers.filter(current=>(current.parentId===container.id))" />
 </div>
 </template>
 
