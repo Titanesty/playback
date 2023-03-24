@@ -1,33 +1,78 @@
 <script lang="ts" setup>
-import type {Container} from "@/components/UI/containers/types";
-import {computed, ref} from "vue";
+import { computed } from 'vue'
+import type { CSSProperties } from 'vue'
+import type { Container, Widget } from '@/components/UI/container/types'
+import WidgetHandle from '@/components/UI/widgets/widget-handle/WidgetHandle.vue'
 
 interface ContainerProps {
-  containers: Container[];
-  parentId: number
+  parentContainer: Container
+  containers: Container[]
+  widgetsList: Widget[]
 }
-
 const props = defineProps<ContainerProps>()
 
-const parentContainer = computed(()=> {
-  return props.containers.filter((item)=> item.parentId === props.parentId) // непросредственно дети
+const childContainer = computed(() => {
+  return props.containers.filter((item) => item.parentId === props.parentContainer.id)
 })
 
-const getParentContainerId = (containerId: number): number => {
-  return containerId
+const styleContainer = (item: Container): CSSProperties => {
+  return {
+    backgroundColor: item.color,
+    width: `${item.width}px`,
+    height: `${item.height}px`,
+    left: `${item.y}px`,
+    top: `${item.x}px`
+  }
 }
 
-const getNextContainers = (containerId: number): Container[]  => {
-  return props.containers.filter((item) => item.parentId === containerId)
+const getWidgetsListByContainers = (containerId: number): Widget[] => {
+  return props.widgetsList.filter((item) => item.containerId === containerId)
 }
+
+interface WidgetByContainers extends Container {
+  widgets: Widget[]
+}
+
+const writeLog = () => {
+  const array = props.containers.reduce(
+    (accum: WidgetByContainers[], value: Container): WidgetByContainers[] => {
+      const widgets = props.widgetsList.filter((item) => item.containerId === value.id)
+
+      accum.push({ ...value, widgets })
+      return accum
+    },
+    []
+  )
+  array.forEach((item) => {
+    console.log('КОНТЕЙНЕР:', item, 'ВИДЖЕТЫ:', item.widgets)
+  })
+}
+
+writeLog()
 </script>
-
 <template>
-<div class="container" v-for="container of parentContainer" :style="{'backgroundColor': container.color, width: `${container.width}px`, height: `${container.height}px`}">
-  <VContainer :containers="getNextContainers(container.id)" :parentId="getParentContainerId(container.id)" />
-</div>
+  <div
+    :id="parentContainer.id"
+    class="container container-main"
+    :style="styleContainer(parentContainer)"
+  >
+    <WidgetHandle :widgets="getWidgetsListByContainers(parentContainer.id)" />
+    <VContainer
+      :id="container.id"
+      class="container"
+      :style="styleContainer(container)"
+      v-for="container in childContainer"
+      :key="container.id"
+      :parentContainer="container"
+      :containers="containers"
+      :widgetsList="widgetsList"
+    >
+      <WidgetHandle :widgets="getWidgetsListByContainers(container.id)" />
+    </VContainer>
+  </div>
 </template>
-
 <style lang="scss" scoped>
-
+.container-main {
+  position: relative;
+}
 </style>
