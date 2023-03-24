@@ -44,7 +44,7 @@ const writeLog = () => {
     []
   )
   array.forEach((item) => {
-    console.log('КОНТЕЙНЕР:', item, 'ВИДЖЕТЫ:', item.widgets)
+    console.log('КОНТЕЙНЕР:', item.id, 'ВИДЖЕТЫ:', item.widgets)
   })
 }
 
