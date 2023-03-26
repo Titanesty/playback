@@ -1,8 +1,3 @@
-export interface Root {
-  containers: Container[];
-  widgets: Widget[];
-}
-
 export interface Container {
   id: number;
   parentId: number | null;

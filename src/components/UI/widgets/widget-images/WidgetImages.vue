@@ -1,6 +1,11 @@
 <script lang="ts" setup>
 import type { Widget } from "@/components/UI/container/types";
-import { computed, onUpdated } from "vue";
+import { computed, onBeforeUnmount } from "vue";
+import img1 from "@/assets/images/img1.jpg";
+import img2 from "@/assets/images/img2.jpg";
+import img3 from "@/assets/images/img3.jpg";
+import img4 from "@/assets/images/img4.jpg";
+import { PrintConsoleLog } from "@/services/print-console-log";
 
 interface WidgetsImages {
   widgetSet: Widget;
@@ -14,40 +19,24 @@ const styleWidget = computed(() => {
   };
 });
 
-const date = new Date();
+const imageSrc = (image: string): string => {
+  if (image === "img1.jpg") return img1;
+  if (image === "img2.png") return img2;
+  if (image === "img3.jpg") return img3;
+  if (image === "img4.jpg") return img4;
+  return "";
+};
 
-console.log(
-  "Воспроизводим: Имя:",
-  props.widgetSet.name,
-  "ID",
-  props.widgetSet.id,
-  "Контейнер ID",
-  props.widgetSet.containerId,
-  "Имя файла",
-  props.widgetSet.fileName,
-  "Начало воспроизвденеия",
-  `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
-);
+PrintConsoleLog.createdHook(props.widgetSet);
 
-onUpdated(() => {
-  console.log(
-    "Окончание воспроизведения : Имя:",
-    props.widgetSet.name,
-    "ID",
-    props.widgetSet.id,
-    "Контейнер ID",
-    props.widgetSet.containerId,
-    "Имя файла",
-    props.widgetSet.fileName,
-    "Конец воспроизвденеия",
-    `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
-  );
+onBeforeUnmount(() => {
+  PrintConsoleLog.beforeUnmountHook(props.widgetSet);
 });
 </script>
 
 <template>
   <div :id="widgetSet.id" class="widget-images">
-    <img class="widget-images__img" :style="styleWidget" :src="widgetSet.fileName" :alt="widgetSet.name" />
+    <img class="widget-images__img" :style="styleWidget" :src="imageSrc(widgetSet.fileName)" :alt="widgetSet.name" />
   </div>
 </template>
 

@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import type { Widget } from "@/components/UI/container/types";
-import { computed, onUpdated, ref } from "vue";
+import { computed, onBeforeUnmount, ref } from "vue";
+import video2 from "@/assets/video/video1.mp4";
+import video1 from "@/assets/video/video2.mp4";
+import { PrintConsoleLog } from "@/services/print-console-log";
 
 interface WidgetsImagesProps {
   widgetSet: Widget;
@@ -20,83 +23,45 @@ const styleWidget = computed(() => {
   };
 });
 
-const date = new Date();
-
-interface Time {
-  h: number;
-  m: number;
-  s: number;
-}
-
-const startTime = ref<Time>({} as Time);
-const endTime = ref<Time>({} as Time);
-
-const getTime = (time: Time) => {
-  time.h = date.getHours();
-  time.m = date.getMinutes();
-  time.s = date.getSeconds();
-};
-
-getTime(startTime.value);
-
-const instanceVideo = ref<HTMLVideoElement | null>(null);
-
-console.log(
-  "Воспроизводим: Имя:",
-  props.widgetSet.name,
-  "ID",
-  props.widgetSet.id,
-  "Контейнер ID",
-  props.widgetSet.containerId,
-  "Имя файла",
-  props.widgetSet.fileName,
-  "Начало воспроизвденеия",
-  `${startTime.value.h}:${startTime.value.m}:${startTime.value.s}`
-);
+const instanceVideo = ref<HTMLMediaElement | null>(null);
 
 const getEndVideo = (): void => {
+  console.log("Конец видео");
   emits("getEndVideo");
 };
 
-onUpdated(() => {
-  getTime(endTime.value);
+const videoSrc = (fileName: string): string => {
+  if (fileName === "video1.mp4") return video2;
+  if (fileName === "video2.mp4") return video1;
+  return "";
+};
 
-  console.log(
-    "Окончание воспроизведения Имя:",
-    props.widgetSet.name,
-    "ID:",
-    props.widgetSet.id,
-    "Контейнер ID:",
-    props.widgetSet.containerId,
-    "Имя файла",
-    props.widgetSet.fileName,
-    "Конец воспроизвденеия:",
-    `${endTime.value.h}:${endTime.value.m}:${endTime.value.s}`,
-    "Время воспроизвденеия:"
-  );
+PrintConsoleLog.createdHook(props.widgetSet);
+
+onBeforeUnmount(() => {
+  PrintConsoleLog.beforeUnmountHook(props.widgetSet);
 });
 </script>
 
 <template>
-  <div :id="widgetSet.id" class="widget-video">
+  <div class="widget-video">
     <video
       ref="instanceVideo"
-      @ended="getEndVideo"
+      :id="widgetSet.id"
       class="widget-video__video"
       :style="styleWidget"
-      :muted="widgetSet.mute"
+      :src="videoSrc(widgetSet.fileName)"
+      @ended="getEndVideo"
+      muted
       autoplay
-      controls
-    >
-      <source :src="widgetSet.fileName" />
-    </video>
+      preload="auto"
+    />
   </div>
 </template>
 
 <style lang="scss" scoped>
 .widget-video {
   width: 100%;
-  height: 100%;
 
   &__video {
     display: block;

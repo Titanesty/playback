@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-import type { Widget } from "@/components/UI/container/types";
-import { onMounted, ref, shallowRef } from "vue";
+import type { Container, Widget } from "@/components/UI/container/types";
+import { computed, onMounted, ref, shallowRef, Transition } from "vue";
 import WidgetImages from "@/components/UI/widgets/widget-images/WidgetImages.vue";
 import WidgetVideo from "@/components/UI/widgets/widget-video/WidgetVideo.vue";
 
 interface WidgetHandle {
   widgets: Widget[];
+  effect: Container["effect"];
 }
 
 interface WidgetComponent extends Widget {
@@ -32,36 +33,24 @@ const visibleWidget = ref<WidgetComponent | null>(null);
 
 const isEndVideo = ref(false);
 
-const getVisibleWidgetWithDelay = async (): Promise<any> => {
+const getVisibleWidgetWithDelay = async (): Promise<void> => {
   const firstComponentsWidget: WidgetComponent = componentsWidget.value[0];
   if (firstComponentsWidget.duration.untilDone && firstComponentsWidget.type === "image") {
     visibleWidget.value = firstComponentsWidget;
   } else {
     for (let widget of componentsWidget.value) {
-      if (widget.type === "video" && widget.duration.untilDone) {
-        ////
-        const iterator: IterableIterator<WidgetComponent> = componentsWidget.value[Symbol.iterator]();
-        while (!isEndVideo.value) {
-          const result = iterator.next();
-          if (result.done) {
-            // если прошли все элементы массива, выходим из цикла
-            break;
-          }
-          const element = result.value;
-          console.log(element);
-          // проверяем, нужно ли приостановить выполнение цикла
-          if (isEndVideo.value) {
-            // ожидаем, пока переменная stop не станет true
-            while (isEndVideo.value) {
-              // делаем паузу в выполнении цикла
-              await new Promise((resolve) => setTimeout(resolve, 1000));
-            }
-            // когда переменная stop стала false, продолжаем выполнение цикла
-          }
-        }
-        ////
-
+      if (widget.duration.untilDone && widget.type === "video") {
         visibleWidget.value = widget;
+        await new Promise<void>((resolve) => {
+          const checkVideoDone = () => {
+            if (!isEndVideo.value) {
+              setTimeout(checkVideoDone, 1000);
+            } else {
+              resolve();
+            }
+          };
+          checkVideoDone();
+        });
       } else {
         await new Promise((resolve) => {
           setTimeout(resolve, widget.duration.value);
@@ -80,17 +69,23 @@ onMounted(async () => {
 const getEndVideo = (): void => {
   isEndVideo.value = true;
 };
+
+const isTransitionName = computed(() => {
+  return props.effect === "crossfade" ? "fade" : "";
+});
 </script>
 
 <template>
   <div class="widget">
-    {{ isEndVideo }}
-    <component
-      v-if="visibleWidget"
-      :is="visibleWidget.component"
-      :widgetSet="visibleWidget"
-      @getEndVideo="getEndVideo"
-    />
+    <Transition :name="isTransitionName">
+      <component
+        v-if="visibleWidget"
+        :is="visibleWidget.component"
+        :key="visibleWidget.id"
+        :widgetSet="visibleWidget"
+        @getEndVideo="getEndVideo"
+      />
+    </Transition>
   </div>
 </template>
 
@@ -98,5 +93,16 @@ const getEndVideo = (): void => {
 .widget {
   width: 100%;
   height: 100%;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  position: absolute;
+  transition: opacity 1000ms ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

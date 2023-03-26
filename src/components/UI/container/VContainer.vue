@@ -30,10 +30,6 @@ const getWidgetsListByContainers = (containerId: number): Widget[] => {
   return props.widgetsList.filter((item) => item.containerId === containerId);
 };
 
-interface WidgetByContainers extends Container {
-  widgets: string[];
-}
-
 console.log(
   "КОНТЕЙНЕР id:",
   props.parentContainer.id,
@@ -44,7 +40,7 @@ console.log(
 
 <template>
   <div :id="parentContainer.id" class="container" :style="styleContainer(parentContainer)">
-    <WidgetHandle :widgets="getWidgetsListByContainers(parentContainer.id)" />
+    <WidgetHandle :widgets="getWidgetsListByContainers(parentContainer.id)" :effect="parentContainer.effect" />
     <VContainer
       :id="container.id"
       class="container"
@@ -55,7 +51,7 @@ console.log(
       :containers="containers"
       :widgetsList="widgetsList"
     >
-      <WidgetHandle :widgets="getWidgetsListByContainers(container.id)" />
+      <WidgetHandle :widgets="getWidgetsListByContainers(container.id)" :effect="container.effect" />
     </VContainer>
   </div>
 </template>
