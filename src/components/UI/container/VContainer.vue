@@ -1,61 +1,49 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
-import type { CSSProperties } from 'vue'
-import type { Container, Widget } from '@/components/UI/container/types'
-import WidgetHandle from '@/components/UI/widgets/widget-handle/WidgetHandle.vue'
+import { computed } from "vue";
+import type { CSSProperties } from "vue";
+import type { Container, Widget } from "@/components/UI/container/types";
+import WidgetHandle from "@/components/UI/widgets/widget-handle/WidgetHandle.vue";
 
 interface ContainerProps {
-  parentContainer: Container
-  containers: Container[]
-  widgetsList: Widget[]
+  parentContainer: Container;
+  containers: Container[];
+  widgetsList: Widget[];
 }
-const props = defineProps<ContainerProps>()
+const props = defineProps<ContainerProps>();
 
 const childContainer = computed(() => {
-  return props.containers.filter((item) => item.parentId === props.parentContainer.id)
-})
+  return props.containers.filter((item) => item.parentId === props.parentContainer.id);
+});
 
 const styleContainer = (item: Container): CSSProperties => {
   return {
     backgroundColor: item.color,
-    width: `${item.width}px`,
-    height: `${item.height}px`,
+    maxWidth: `${item.width}px`,
+    maxHeight: `${item.height}px`,
     left: `${item.y}px`,
-    top: `${item.x}px`
-  }
-}
+    top: `${item.x}px`,
+    position: item.parentId === null ? "relative" : "absolute",
+  };
+};
 
 const getWidgetsListByContainers = (containerId: number): Widget[] => {
-  return props.widgetsList.filter((item) => item.containerId === containerId)
-}
+  return props.widgetsList.filter((item) => item.containerId === containerId);
+};
 
 interface WidgetByContainers extends Container {
-  widgets: Widget[]
+  widgets: string[];
 }
 
-const writeLog = () => {
-  const array = props.containers.reduce(
-    (accum: WidgetByContainers[], value: Container): WidgetByContainers[] => {
-      const widgets = props.widgetsList.filter((item) => item.containerId === value.id)
-
-      accum.push({ ...value, widgets })
-      return accum
-    },
-    []
-  )
-  array.forEach((item) => {
-    console.log('КОНТЕЙНЕР:', item.id, 'ВИДЖЕТЫ:', item.widgets)
-  })
-}
-
-writeLog()
+console.log(
+  "КОНТЕЙНЕР id:",
+  props.parentContainer.id,
+  "ВИДЖЕТЫ:",
+  getWidgetsListByContainers(props.parentContainer.id).map((item) => item.name)
+);
 </script>
+
 <template>
-  <div
-    :id="parentContainer.id"
-    class="container container-main"
-    :style="styleContainer(parentContainer)"
-  >
+  <div :id="parentContainer.id" class="container" :style="styleContainer(parentContainer)">
     <WidgetHandle :widgets="getWidgetsListByContainers(parentContainer.id)" />
     <VContainer
       :id="container.id"
@@ -71,8 +59,10 @@ writeLog()
     </VContainer>
   </div>
 </template>
+
 <style lang="scss" scoped>
-.container-main {
-  position: relative;
+.container {
+  height: 100%;
+  width: 100%;
 }
 </style>

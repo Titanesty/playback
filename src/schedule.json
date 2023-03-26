@@ -29,16 +29,6 @@
       "height": 250,
       "effect": "crossfade",
       "color": "#9438a1"
-    },
-    {
-      "id": 4,
-      "parentId": 3,
-      "x": 30,
-      "y": 30,
-      "width": 40,
-      "height": 40,
-      "effect": "crossfade",
-      "color": "#ffffff"
     }
   ],
   "widgets": [

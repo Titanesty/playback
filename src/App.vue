@@ -3,7 +3,7 @@ import VDisplay from "@/components/display/VDisplay.vue";
 </script>
 
 <template>
-<VDisplay />
+  <VDisplay />
 </template>
 
 <style scoped></style>

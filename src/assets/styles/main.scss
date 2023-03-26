@@ -1,0 +1,57 @@
+@import "_normalize";
+
+*,
+*::before,
+*::after {
+  outline: none;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+ul,
+ol,
+li {
+  list-style: none;
+}
+
+html {
+  height: 100%;
+  box-sizing: border-box;
+  font-size: 10px;
+}
+
+body {
+  height: 100%;
+  font-family: "Inter", sans-serif;
+  min-width: 320px;
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  line-height: 30px;
+  background-color: #fff;
+  font-weight: 400;
+}
+
+li {
+  list-style: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: inherit;
+  font-size: inherit;
+}
+
+#app {
+  height: 100%;
+}
