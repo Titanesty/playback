@@ -1,5 +1,4 @@
 import type { Widget } from "@/components/UI/container/types";
-import { onBeforeUnmount } from "vue";
 
 export class PrintConsoleLog {
   public static beforeUnmountHook(props: Widget) {
